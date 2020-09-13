@@ -9,15 +9,28 @@ import (
 
 func main() {
 	fmt.Println("AmazonScraper started")
+	Start()
+}
+
+// Start : scrapper starting point
+func Start() {
 	c := colly.NewCollector()
-
-	c.OnHTML("[cel_widget_id='MAIN-SEARCH_RESULTS'] h2", func(e *colly.HTMLElement) {
+	const baseURL = "https://www.amazon.com"
+	// c.OnHTML("[cel_widget_id='MAIN-SEARCH_RESULTS']", func(e *colly.HTMLElement) {
+	c.OnHTML("[data-asin*='B']", func(e *colly.HTMLElement) {
 		// e.Request.Visit(e.Chil)
-
+		asin := e.Attr("data-asin")
 		link := e.ChildAttr("a", "href")
-		title := strings.TrimSpace(link)
+
+		urlLink := ""
+		if len(strings.TrimSpace(link)) != 0 {
+			urlLink = baseURL + strings.TrimSpace(link)
+		}
+
+		title := e.ChildText("h2")
 		fmt.Println(title)
-		fmt.Println(link)
+		fmt.Println(urlLink)
+		fmt.Println(asin)
 	})
 
 	c.OnRequest(func(r *colly.Request) {
